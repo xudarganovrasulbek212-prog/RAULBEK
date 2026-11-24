@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KhivaStay — Xiva Mehmonxonalari va Bron Qilish</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- Header / Navbar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="goHome()">
+                <div class="w-11 h-11 bg-amber-600 rounded-xl flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-hotel text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-2xl font-bold tracking-tight text-slate-900">Khiva<span class="text-amber-600">Stay</span></span>
+                    <p class="text-xs text-slate-500 font-medium" id="brand-tagline">Xiva Mehmonxonalari Portali</p>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="flex items-center space-x-4">
+                <!-- Currency Selector -->
+                <select id="currency-select" onchange="changeCurrency(this.value)" class="bg-slate-100 text-slate-700 text-sm font-semibold py-2 px-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <option value="USD">USD ($)</option>
+                    <option value="UZS" selected>UZS (So‘m)</option>
+                </select>
+
+                <!-- Language Selector -->
+                <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-slate-100 text-slate-700 text-sm font-semibold py-2 px-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <option value="uz" selected>O‘zbekcha</option>
+                    <option value="en">English</option>
+                    <option value="ru">Русский</option>
+                </select>
+
+                <!-- Admin Panel Button -->
+                <button onclick="openAdminLoginModal()" class="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow transition">
+                    <i class="fa-solid fa-lock text-amber-400"></i>
+                    <span id="nav-admin-btn">Admin Panel</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- Hero Search Section -->
+        <div class="bg-gradient-to-r from-amber-700 to-amber-900 rounded-3xl p-8 sm:p-12 text-white shadow-xl mb-12 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 opacity-10 text-9xl">
+                <i class="fa-solid fa-archway"></i>
+            </div>
+            <div class="relative z-10 max-w-2xl">
+                <h1 id="hero-title" class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-4">Qadimiy Xivada Unutilmas Dam Oling</h1>
+                <p id="hero-desc" class="text-amber-100 text-lg mb-8">Ichan-Qal'a atrofidagi 6 ta eng sara mehmonxona va mehmon uylarini eng qulay narxlarda band qiling.</p>
+                
+                <!-- Search & Filters Bar -->
+                <div class="bg-white p-3 rounded-2xl shadow-lg flex flex-col md:flex-row gap-3">
+                    <div class="flex-1 flex items-center px-3 bg-slate-50 rounded-xl border border-slate-200">
+                        <i class="fa-solid fa-magnifying-glass text-slate-400 mr-3"></i>
+                        <input type="text" id="search-input" oninput="filterHotels()" placeholder="Mehmonxona nomi yoki joylashuvi..." class="w-full py-3 bg-transparent text-slate-800 placeholder-slate-400 text-sm focus:outline-none">
+                    </div>
+                    <div class="w-full md:w-52">
+                        <select id="filter-location" onchange="filterHotels()" class="w-full bg-slate-50 text-slate-700 text-sm font-medium py-3 px-3 rounded-xl border border-slate-200 focus:outline-none">
+                            <option value="all">Barcha joylashuvlar</option>
+                            <option value="Ichan-Qal'a ichida">Ichan-Qal'a ichida</option>
+                            <option value="Ichan-Qal'a yaqinida">Ichan-Qal'a yaqinida</option>
+                            <option value="Dishan-Qal'a">Dishan-Qal'a</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hotels Grid -->
+        <div class="mb-6 flex items-center justify-between">
+            <h2 id="section-title" class="text-2xl font-bold text-slate-900">Mavjud Mehmonxonalar (6 ta)</h2>
+            <span id="hotel-count" class="text-sm font-semibold text-slate-500 bg-white px-3 py-1 rounded-lg border border-slate-200">6 ta mehmonxona</span>
+        </div>
+
+        <div id="hotels-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Dynamic Hotels injected via JS -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-16 py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-slate-500 text-sm">
+            <p>&copy; 2026 KhivaStay. Xiva shahri mehmonxonalari bron qilish tizimi. Barcha huquqlar himoyalangan.</p>
+        </div>
+    </footer>
+
+    <!-- Modal: Hotel Detail & Booking -->
+    <div id="detail-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeDetailModal()" class="absolute top-6 right-6 w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-full flex items-center justify-center transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div id="modal-content">
+                <!-- Dynamic Detail Content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Admin Login with Code 2525 -->
+    <div id="admin-login-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative text-center">
+            <button onclick="closeAdminLoginModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="w-16 h-16 bg-amber-100 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-slate-900 mb-2">Admin Panelga kirish</h3>
+            <p class="text-slate-500 text-sm mb-6">Iltimos, boshqaruv paneliga kirish uchun maxfiy kodni kiriting (Kod: 2525)</p>
+            
+            <form onsubmit="verifyAdminCode(event)">
+                <input type="password" id="admin-code-input" placeholder="Maxfiy kod (2525)" required class="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-center text-lg tracking-widest mb-4 focus:outline-none focus:ring-2 focus:ring-amber-500">
+                <p id="admin-error-msg" class="text-rose-500 text-xs mb-4 hidden">Xato kod! Qaytadan urinib ko'ring (Kod: 2525)</p>
+                <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-xl shadow-lg transition">Tasdiqlash</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Admin Dashboard -->
+    <div id="admin-dashboard-modal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-slate-50 rounded-3xl max-w-5xl w-full p-6 sm:p-8 shadow-2xl relative max-h-[95vh] overflow-y-auto">
+            <div class="flex items-center justify-between pb-6 border-b border-slate-200 mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center">
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900">KhivaStay Admin Boshqaruvi</h2>
+                        <p class="text-xs text-slate-500">Mehmonxonalar va bronlarni boshqarish markazi</p>
+                    </div>
+                </div>
+                <button onclick="closeAdminDashboard()" class="px-4 py-2 bg-rose-100 hover:bg-rose-200 text-rose-700 font-semibold text-sm rounded-xl transition">Chiqish</button>
+            </div>
+
+            <!-- Admin Actions -->
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-slate-800">Mehmonxonalar ro'yxati</h3>
+                <button onclick="openAddHotelModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow transition flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Yangi mehmonxona qo'shish</span>
+                </button>
+            </div>
+
+            <!-- Admin Hotels Table -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 text-xs uppercase font-bold tracking-wider">
+                                <th class="p-4">Mehmonxona</th>
+                                <th class="p-4">Joylashuv</th>
+                                <th class="p-4">Narxi (1 kecha)</th>
+                                <th class="p-4">Reyting</th>
+                                <th class="p-4 text-right">Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-hotels-tbody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bookings Section -->
+            <h3 class="text-lg font-bold text-slate-800 mb-4">Kelib tushgan bronlar</h3>
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 text-xs uppercase font-bold tracking-wider">
+                                <th class="p-4">Kod</th>
+                                <th class="p-4">Mehmon</th>
+                                <th class="p-4">Mehmonxona</th>
+                                <th class="p-4">Sana va Tun</th>
+                                <th class="p-4">Jami narx</th>
+                                <th class="p-4 text-right">Holat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-bookings-tbody" class="divide-y divide-slate-100 text-sm">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add / Edit Hotel -->
+    <div id="hotel-form-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
+            <h3 id="hotel-form-title" class="text-xl font-bold text-slate-900 mb-6">Yangi mehmonxona qo'shish</h3>
+            <form onsubmit="saveHotel(event)" id="hotel-form" class="space-y-4">
+                <input type="hidden" id="edit-hotel-id">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Nomi</label>
+                    <input type="text" id="f-name" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Joylashuvi</label>
+                    <select id="f-location" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <option value="Ichan-Qal'a ichida">Ichan-Qal'a ichida</option>
+                        <option value="Ichan-Qal'a yaqinida">Ichan-Qal'a yaqinida</option>
+                        <option value="Dishan-Qal'a">Dishan-Qal'a</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Narxi (USD $)</label>
+                        <input type="number" id="f-price" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Reyting (masalan: 4.9)</label>
+                        <input type="number" step="0.1" id="f-rating" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Asosiy rasm URL manzili</label>
+                    <input type="url" id="f-image" required placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tarixiy ma'lumot va tavsif</label>
+                    <textarea id="f-desc" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                </div>
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" onclick="closeHotelFormModal()" class="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 rounded-xl transition">Bekor qilish</button>
+                    <button type="submit" class="w-1/2 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-xl transition">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // 6 ta Mehmonxona ma'lumotlari
+        let hotels = [
+            {
+                id: 1,
+                name: "Orient Star Khiva Madrasah",
+                location: "Ichan-Qal'a ichida",
+                priceUSD: 90,
+                rating: 4.9,
+                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+                desc: "19-asrda qurilgan Muhammad Aminxon madrasasida joylashgan noyob mehmonxona. Tarixiy muhitni his qilish uchun eng zo‘r tanlov.",
+                rooms: ["Standart ikki kishilik", "Lyuks xona", "Tarixiy Suite"]
+            },
+            {
+                id: 2,
+                name: "Islam Khodja Hotel",
+                location: "Ichan-Qal'a ichida",
+                priceUSD: 95,
+                rating: 4.9,
+                image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80",
+                desc: "Mashhur Islomxo‘ja minorasi yonida joylashgan. Derazalaridan qadimiy shahar va minora manzarasi ko‘rinib turadi.",
+                rooms: ["Panorama Room", "Twin Room", "Deluxe Suite"]
+            },
+            {
+                id: 3,
+                name: "Farovon Khiva Hotel",
+                location: "Ichan-Qal'a yaqinida",
+                priceUSD: 110,
+                rating: 4.8,
+                image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80",
+                desc: "Ochiq basseyn, zamonaviy restoran va eng yuqori darajadagi xizmatlarga ega 5 yulduzli qulay mehmonxona.",
+                rooms: ["Deluxe King", "Twin Room", "Family Suite"]
+            },
+            {
+                id: 4,
+                name: "Khiva Palace Hotel",
+                location: "Ichan-Qal'a yaqinida",
+                priceUSD: 85,
+                rating: 4.8,
+                image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
+                desc: "Sharqona me'morchilik va zamonaviy qulayliklarni o‘zida mujassam etgan shinam va yorug‘ xonalarga ega mehmonxona.",
+                rooms: ["Standard Room", "Business Suite"]
+            },
+            {
+                id: 5,
+                name: "Khiva Moon Guest House",
+                location: "Dishan-Qal'a",
+                priceUSD: 45,
+                rating: 4.7,
+                image: "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80",
+                desc: "O‘zbekona mehmondo‘stlik muhitida dam olishni istovchilar uchun oilaviy va qulay mehmon uyi.",
+                rooms: ["Standard Single", "Triple Room"]
+            },
+            {
+                id: 6,
+                name: "Zamin Qal'a Guest House",
+                location: "Dishan-Qal'a",
+                priceUSD: 40,
+                rating: 4.6,
+                image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80",
+                desc: "Byudjetli sayohatchilar uchun tejamkor, toza va har kuni milliy nonushta taqdim etiladigan shinam maskan.",
+                rooms: ["Economic Double", "Family Room"]
+            }
+        ];
+
+        let bookings = [
+            { code: "KHV-1025", name: "Alisher Uzoqov", hotel: "Orient Star Khiva", dates: "12.05.2026 (2 tun)", total: "1,413,000 UZS", status: "Tasdiqlangan" }
+        ];
+
+        let currentCurrency = 'UZS';
+        let currentLang = 'uz';
+        const usdRate = 12900; // 1 USD = 12,900 UZS
+
+        const translations = {
+            uz: {
+                tagline: "Xiva Mehmonxonalari Portali",
+                adminBtn: "Admin Panel",
+                heroTitle: "Qadimiy Xivada Unutilmas Dam Oling",
+                heroDesc: "Ichan-Qal'a atrofidagi 6 ta eng sara mehmonxona va mehmon uylarini eng qulay narxlarda band qiling.",
+                searchPlaceholder: "Mehmonxona nomi yoki joylashuvi...",
+                sectionTitle: "Mavjud Mehmonxonalar",
+                perNight: "kecha uchun",
+                detailsBtn: "Batafsil va Band qilish"
+            },
+            en: {
+                tagline: "Khiva Hotels Portal",
+                adminBtn: "Admin Panel",
+                heroTitle: "Enjoy Unforgettable Moments in Ancient Khiva",
+                heroDesc: "Book the finest hotels and traditional guesthouses around Ichan-Kala at the best prices.",
+                searchPlaceholder: "Hotel name or location...",
+                sectionTitle: "Available Hotels",
+                perNight: "per night",
+                detailsBtn: "Details & Book"
+            },
+            ru: {
+                tagline: "Портал отелей Хивы",
+                adminBtn: "Админ панель",
+                heroTitle: "Незабываемый отдых в древней Хиве",
+                heroDesc: "Бронируйте лучшие отели и гостевые дома вокруг Ичан-Калы по выгодным ценам.",
+                searchPlaceholder: "Название отеля или расположение...",
+                sectionTitle: "Доступные отели",
+                perNight: "за ночь",
+                detailsBtn: "Подробнее и бронь"
+            }
+        };
+
+        function changeCurrency(val) {
+            currentCurrency = val;
+            renderHotels();
+        }
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const t = translations[lang];
+            document.getElementById('brand-tagline').innerText = t.tagline;
+            document.getElementById('nav-admin-btn').innerText = t.adminBtn;
+            document.getElementById('hero-title').innerText = t.heroTitle;
+            document.getElementById('hero-desc').innerText = t.heroDesc;
+            document.getElementById('search-input').placeholder = t.searchPlaceholder;
+            renderHotels();
+        }
+
+        function formatPrice(usd) {
+            if (currentCurrency === 'UZS') {
+                let sum = usd * usdRate;
+                return sum.toLocaleString() + " UZS";
+            } else {
+                return "$" + usd;
+            }
+        }
+
+        function renderHotels() {
+            const grid = document.getElementById('hotels-grid');
+            const search = document.getElementById('search-input').value.toLowerCase();
+            const locFilter = document.getElementById('filter-location').value;
+
+            let filtered = hotels.filter(h => {
+                let matchesSearch = h.name.toLowerCase().includes(search) || h.location.toLowerCase().includes(search);
+                let matchesLoc = (locFilter === 'all' || h.location === locFilter);
+                return matchesSearch && matchesLoc;
+            });
+
+            document.getElementById('hotel-count').innerText = `${filtered.length} ta mehmonxona`;
+            document.getElementById('section-title').innerText = `Mavjud Mehmonxonalar (${filtered.length} ta)`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400">Hech qanday mehmonxona topilmadi</div>`;
+                return;
+            }
+
+            const t = translations[currentLang];
+
+            grid.innerHTML = filtered.map(h => `
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-200 hover:shadow-xl transition flex flex-col justify-between">
+                    <div>
+                        <div class="relative h-56 overflow-hidden">
+                            <img src="${h.image}" alt="${h.name}" class="w-full h-full object-cover">
+                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-slate-800 shadow">
+                                <i class="fa-solid fa-location-dot text-amber-600 mr-1"></i> ${h.location}
+                            </div>
+                            <div class="absolute top-4 right-4 bg-amber-500 text-white px-2.5 py-1 rounded-full text-xs font-bold shadow flex items-center space-x-1">
+                                <i class="fa-solid fa-star text-xs"></i>
+                                <span>${h.rating}</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">${h.name}</h3>
+                            <p class="text-slate-500 text-sm line-clamp-2 mb-4">${h.desc}</p>
+                        </div>
+                    </div>
+                    <div class="p-6 pt-0 flex items-center justify-between border-t border-slate-100 mt-4 pt-4">
+                        <div>
+                            <span class="text-xs text-slate-400 block">${t.perNight}</span>
+                            <span class="text-lg font-extrabold text-amber-700">${formatPrice(h.priceUSD)}</span>
+                        </div>
+                        <button onclick="openDetailModal(${h.id})" class="bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow transition">
+                            ${t.detailsBtn}
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterHotels() {
+            renderHotels();
+        }
+
+        function goHome() {
+            document.getElementById('search-input').value = '';
+            document.getElementById('filter-location').value = 'all';
+            renderHotels();
+        }
+
+        // Detail & Booking Modal
+        function openDetailModal(id) {
+            const h = hotels.find(item => item.id === id);
+            const modal = document.getElementById('detail-modal');
+            const content = document.getElementById('modal-content');
+
+            content.innerHTML = `
+                <div class="space-y-6">
+                    <div>
+                        <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">${h.location}</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">${h.name}</h2>
+                    </div>
+
+                    <img src="${h.image}" class="w-full h-72 object-cover rounded-2xl shadow-md mb-3">
+                    <p class="text-slate-600 text-sm leading-relaxed">${h.desc}</p>
+
+                    <!-- Booking Form Inside Modal -->
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <h4 class="text-base font-bold text-slate-900 mb-4"><i class="fa-solid fa-calendar-check text-amber-600 mr-2"></i> Xona band qilish</h4>
+                        <form onsubmit="submitBooking(event, ${h.id})" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Ism va Familiyangiz</label>
+                                    <input type="text" id="b-name" required placeholder="Anvar Toshmatov" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Xona turi</label>
+                                    <select id="b-room" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                        ${h.rooms ? h.rooms.map(r => `<option value="${r}">${r}</option>`).join('') : '<option value="Standard">Standard Room</option>'}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Kelish sanasi</label>
+                                    <input type="date" id="b-date" required class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Tunlar soni</label>
+                                    <input type="number" id="b-nights" min="1" value="1" required class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3.5 rounded-xl shadow-lg transition">
+                                Joyni band qilish (${formatPrice(h.priceUSD)} / kecha)
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detail-modal').classList.add('hidden');
+        }
+
+        function submitBooking(e, hotelId) {
+            e.preventDefault();
+            const hotel = hotels.find(h => h.id === hotelId);
+            const name = document.getElementById('b-name').value;
+            const date = document.getElementById('b-date').value;
+            const nights = parseInt(document.getElementById('b-nights').value);
+            const totalUSD = hotel.priceUSD * nights;
+            const totalStr = formatPrice(totalUSD);
+            const code = "KHV-" + Math.floor(1000 + Math.random() * 9000);
+
+            bookings.unshift({
+                code: code,
+                name: name,
+                hotel: hotel.name,
+                dates: `${date} (${nights} tun)`,
+                total: totalStr,
+                status: "Kutilmoqda"
+            });
+
+            alert(`Tabriklayman! Bron muvaffaqiyatli amalga oshirildi.\nSizning bron raqamingiz: ${code}`);
+            closeDetailModal();
+        }
+
+        // Admin Panel Logics
+        function openAdminLoginModal() {
+            document.getElementById('admin-login-modal').classList.remove('hidden');
+            document.getElementById('admin-code-input').value = '';
+            document.getElementById('admin-error-msg').classList.add('hidden');
+        }
+
+        function closeAdminLoginModal() {
+            document.getElementById('admin-login-modal').classList.add('hidden');
+        }
+
+        function verifyAdminCode(e) {
+            e.preventDefault();
+            const code = document.getElementById('admin-code-input').value;
+            if (code === "2525") {
+                closeAdminLoginModal();
+                openAdminDashboard();
+            } else {
+                document.getElementById('admin-error-msg').classList.remove('hidden');
+            }
+        }
+
+        function openAdminDashboard() {
+            renderAdminHotels();
+            renderAdminBookings();
+            document.getElementById('admin-dashboard-modal').classList.remove('hidden');
+        }
+
+        function closeAdminDashboard() {
+            document.getElementById('admin-dashboard-modal').classList.add('hidden');
+        }
+
+        function renderAdminHotels() {
+            const tbody = document.getElementById('admin-hotels-tbody');
+            tbody.innerHTML = hotels.map(h => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-4 flex items-center space-x-3">
+                        <img src="${h.image}" class="w-10 h-10 rounded-lg object-cover">
+                        <span class="font-bold text-slate-900">${h.name}</span>
+                    </td>
+                    <td class="p-4 text-slate-600">${h.location}</td>
+                    <td class="p-4 font-semibold text-amber-700">$${h.priceUSD}</td>
+                    <td class="p-4 text-slate-600"><i class="fa-solid fa-star text-amber-500 mr-1"></i> ${h.rating}</td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="editHotel(${h.id})" class="px-3 py-1.5 bg-sky-100 hover:bg-sky-200 text-sky-700 text-xs font-semibold rounded-lg transition"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteHotel(${h.id})" class="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 text-xs font-semibold rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAdminBookings() {
+            const tbody = document.getElementById('admin-bookings-tbody');
+            if (bookings.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-400">Hozircha bronlar yo'q</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = bookings.map(b => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-4 font-bold text-slate-900">${b.code}</td>
+                    <td class="p-4 text-slate-700">${b.name}</td>
+                    <td class="p-4 text-slate-600">${b.hotel}</td>
+                    <td class="p-4 text-slate-600">${b.dates}</td>
+                    <td class="p-4 font-semibold text-amber-700">${b.total}</td>
+                    <td class="p-4 text-right">
+                        <span class="px-3 py-1 text-xs font-bold rounded-full ${b.status === 'Tasdiqlangan' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${b.status}</span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAddHotelModal() {
+            document.getElementById('hotel-form-title').innerText = "Yangi mehmonxona qo'shish";
+            document.getElementById('edit-hotel-id').value = '';
+            document.getElementById('hotel-form').reset();
+            document.getElementById('hotel-form-modal').classList.remove('hidden');
+        }
+
+        function closeHotelFormModal() {
+            document.getElementById('hotel-form-modal').classList.add('hidden');
+        }
+
+        function editHotel(id) {
+            const h = hotels.find(item => item.id === id);
+            document.getElementById('hotel-form-title').innerText = "Mehmonxonani tahrirlash";
+            document.getElementById('edit-hotel-id').value = h.id;
+            document.getElementById('f-name').value = h.name;
+            document.getElementById('f-location').value = h.location;
+            document.getElementById('f-price').value = h.priceUSD;
+            document.getElementById('f-rating').value = h.rating;
+            document.getElementById('f-image').value = h.image;
+            document.getElementById('f-desc').value = h.desc;
+            document.getElementById('hotel-form-modal').classList.remove('hidden');
+        }
+
+        function saveHotel(e) {
+            e.preventDefault();
+            const editId = document.getElementById('edit-hotel-id').value;
+            const name = document.getElementById('f-name').value;
+            const location = document.getElementById('f-location').value;
+            const priceUSD = parseFloat(document.getElementById('f-price').value);
+            const rating = parseFloat(document.getElementById('f-rating').value);
+            const image = document.getElementById('f-image').value;
+            const desc = document.getElementById('f-desc').value;
+
+            if (editId) {
+                let h = hotels.find(item => item.id == editId);
+                h.name = name;
+                h.location = location;
+                h.priceUSD = priceUSD;
+                h.rating = rating;
+                h.image = image;
+                h.desc = desc;
+            } else {
+                const newId = hotels.length > 0 ? Math.max(...hotels.map(h => h.id)) + 1 : 1;
+                hotels.push({
+                    id: newId,
+                    name,
+                    location,
+                    priceUSD,
+                    rating,
+                    image,
+                    desc,
+                    rooms: ["Standart xona", "Lyuks xona"]
+                });
+            }
+
+            closeHotelFormModal();
+            renderAdminHotels();
+            renderHotels();
+        }
+
+        function deleteHotel(id) {
+            if (confirm("Haqiqatan ham bu mehmonxonani o'chirmoqchimisiz?")) {
+                hotels = hotels.filter(h => h.id !== id);
+                renderAdminHotels();
+                renderHotels();
+            }
+        }
+
+        // Initial Render
+        renderHotels();
+    </script>
+</body>
+</html>
